@@ -2,7 +2,7 @@
 
 <!-- Insert the project banner here -->
 <div align="center">
-    <a href="https://github.com/ginnm/ProteinPretraining"><img width="200px" height="auto" src="https://github.com/ai4protein/ginnm/ProteinPretraining/band.png"></a>
+    <a href="https://github.com/ginnm/ProteinPretraining"><img width="200px" height="auto" src="https://github.com/ginnm/ProteinPretraining/blob/main/band.jpg"></a>
 </div>
 
 <!-- Select some of the point info, feel free to delete -->
