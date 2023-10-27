@@ -1,4 +1,4 @@
-# PETA : Protein tokenizers and pre-trained models for assessing protein language modeling
+# PETA: Evaluating the Impact of Protein Transfer Learning with Sub-word Tokenization on Downstream Applications
 
 <!-- Insert the project banner here -->
 <div align="center">
@@ -199,5 +199,12 @@ A lot of code is modified from [🤗 transformers](https://github.com/huggingfac
 
 If you find this repository useful, please consider citing this paper:
 ```
-[Coming soon]
+@misc{tan2023peta,
+      title={PETA: Evaluating the Impact of Protein Transfer Learning with Sub-word Tokenization on Downstream Applications}, 
+      author={Yang Tan and Mingchen Li and Pan Tan and Ziyi Zhou and Huiqun Yu and Guisheng Fan and Liang Hong},
+      year={2023},
+      eprint={2310.17415},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
 ```
