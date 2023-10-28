@@ -104,10 +104,9 @@ ls ft_datasets
 Evaluate command
 
 Note:
-bf16 is only available on the Ampere architecture GPUS (RTX 3090, Telsa A100, etc.).
-If your GPU is not Ampere architecture, please use fp32 instead.
+PRECISION='bf16' is only available on the Ampere architecture GPUS (RTX 3090, Telsa A100, etc.).
+If your GPU is not Ampere architecture, please use PRECISION='fp16' instead.
 
-``` 
 
 ```
 export PYTHONPATH="$PYTHONPATH:./"
