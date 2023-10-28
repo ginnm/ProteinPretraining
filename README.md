@@ -76,21 +76,21 @@ print(hidden_state.shape)
 ### Available Models and Tokenizers
 |     model_path    | tokenization type | vocab_size |
 |:-----------------:|:-----------------:|:----------:|
-|     deep_base     |       per-AA      |     33     |
-|    deep_bpe_50    |        BPE        |     50     |
-|    deep_bpe_100   |        BPE        |     100    |
-|    deep_bpe_200   |        BPE        |     200    |
-|    deep_bpe_400   |        BPE        |     400    |
-|    deep_bpe_800   |        BPE        |     800    |
-|   deep_bpe_1600   |        BPE        |    1600    |
-|   deep_bpe_3200   |        BPE        |    3200    |
-|  deep_unigram_50  |      Unigram      |     50     |
-|  deep_unigram_100 |      Unigram      |     100    |
-|  deep_unigram_200 |      Unigram      |     200    |
-|  deep_unigram_400 |      Unigram      |     400    |
-|  deep_unigram_800 |      Unigram      |     800    |
-| deep_unigram_1600 |      Unigram      |    1600    |
-| deep_unigram_3200 |      Unigram      |    3200    |
+|     AI4Protein/deep_base     |       per-AA      |     33     |
+|    AI4Protein/deep_bpe_50    |        BPE        |     50     |
+|    AI4Protein/deep_bpe_100   |        BPE        |     100    |
+|    AI4Protein/deep_bpe_200   |        BPE        |     200    |
+|    AI4Protein/deep_bpe_400   |        BPE        |     400    |
+|    AI4Protein/deep_bpe_800   |        BPE        |     800    |
+|   AI4Protein/deep_bpe_1600   |        BPE        |    1600    |
+|   AI4Protein/deep_bpe_3200   |        BPE        |    3200    |
+|  AI4Protein/deep_unigram_50  |      Unigram      |     50     |
+|  AI4Protein/deep_unigram_100 |      Unigram      |     100    |
+|  AI4Protein/deep_unigram_200 |      Unigram      |     200    |
+|  AI4Protein/deep_unigram_400 |      Unigram      |     400    |
+|  AI4Protein/deep_unigram_800 |      Unigram      |     800    |
+| AI4Protein/deep_unigram_1600 |      Unigram      |    1600    |
+| AI4Protein/deep_unigram_3200 |      Unigram      |    3200    |
 
 ### Evaluating pre-trianed models on PETA benchmark
 
