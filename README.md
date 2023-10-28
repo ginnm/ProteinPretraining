@@ -102,13 +102,20 @@ ls ft_datasets
 ```
 
 Evaluate command
+
+Note:
+bf16 is only available on the Ampere architecture GPUS (RTX 3090, Telsa A100, etc.).
+If your GPU is not Ampere architecture, please use fp32 instead.
+
+``` 
+
 ```
 export PYTHONPATH="$PYTHONPATH:./"
 
 DATASET="gb1"
 SPLIT_METHOD="one_vs_rest"
 BATCH_SIZE=128
-MODEL="deep_base"
+MODEL="AI4Protein/deep_base"
 POOLING_HEAD="attention1d"
 DEVICES=1
 NUM_NODES=1
