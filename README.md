@@ -105,7 +105,7 @@ Evaluate command
 
 Note:
 PRECISION='bf16' is only available on the Ampere architecture GPUS (RTX 3090, Telsa A100, etc.).
-If your GPU is not Ampere architecture, please use PRECISION='fp16' instead.
+If your GPU is not Ampere architecture, please use PRECISION='fp16' or 'bf16-true' instead.
 
 
 ```
@@ -200,6 +200,7 @@ This project is under the MIT license. See [LICENSE](LICENSE) for details.
 ## 🙏 Acknowledgement
 
 A lot of code is modified from [🤗 transformers](https://github.com/huggingface/transformers) and [Lightning-AI](https://lightning.ai/).
+
 
 ## 📝 Citation
 
