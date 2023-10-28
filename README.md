@@ -185,7 +185,7 @@ python peta/train.py \
 --finetune $FINETUNE
 ```
 
-You can find all availiable datasets and splits in peta/dataset.py.
+You can find all available datasets and splits in peta/dataset.py.
 
 If you want to use your own dataset, you can refer to peta/dataset.py and peta/train.py to write your own dataset class. Welcome to propose a pull request to upload your own dataset.
 
