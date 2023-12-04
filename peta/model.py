@@ -1,7 +1,8 @@
-from peta.custom_roformer_model import RoFormerForSequenceClassification
+from peta.custom_ankh_model import AnkhForSequenceClassification
 import pytorch_lightning as pl
 import torch
-
+import torch.utils.checkpoint
+from peft import get_peft_model, LoraConfig
 
 class ProxyModel(pl.LightningModule):
     def __init__(
@@ -16,7 +17,7 @@ class ProxyModel(pl.LightningModule):
         tokenizer=None,
     ):
         super().__init__()
-        self.model = RoFormerForSequenceClassification.from_pretrained(
+        self.model = AnkhForSequenceClassification.from_pretrained(
             model_path, pooling_head=pooling_head, num_labels=num_labels, is_ppi=is_ppi
         )
         self.model.config.problem_type = problem_type
@@ -26,6 +27,8 @@ class ProxyModel(pl.LightningModule):
         self.valid_metrics = torch.nn.ModuleDict(self.valid_metrics)
         self.test_metrics = torch.nn.ModuleDict(self.test_metrics)
         self.lr = optim_args.lr
+        self.num_labels = num_labels
+        self.problem_type = problem_type
 
         self.save_hyperparameters(
             ignore=[
@@ -60,9 +63,14 @@ class ProxyModel(pl.LightningModule):
     def validation_step(self, batch, *args, **kwargs):
         outputs = self.model(**batch)
         for name, metric in self.valid_metrics.items():
+            logits = outputs.logits
+            if self.num_labels == 2 and self.problem_type == "classification":
+                logits = torch.sigmoid(outputs.logits)
+            elif self.num_labels > 2 and self.problem_type == "classification":
+                logits = torch.softmax(outputs.logits, dim=-1)
             self.log(
                 f"valid/{name}",
-                metric(outputs.logits, batch["labels"]),
+                metric(logits, batch["labels"]),
                 logger=True,
                 on_step=False,
                 on_epoch=True,
@@ -72,10 +80,14 @@ class ProxyModel(pl.LightningModule):
 
     def test_step(self, batch, *args, **kwargs):
         outputs = self.model(**batch)
+        if self.num_labels == 2 and self.problem_type == "classification":
+            logits = torch.sigmoid(outputs.logits)
+        elif self.num_labels > 2 and self.problem_type == "classification":
+            logits = torch.softmax(outputs.logits, dim=-1)
         for name, metric in self.test_metrics.items():
             self.log(
                 f"test/{name}",
-                metric(outputs.logits, batch["labels"]),
+                metric(logits, batch["labels"]),
                 logger=True,
                 on_step=False,
                 on_epoch=True,
@@ -84,16 +96,28 @@ class ProxyModel(pl.LightningModule):
 
     def configure_optimizers(self):
         if self.optmi_args.finetune == "head":
-            for param in self.model.roformer.parameters():
+            for param in self.model.transformer.parameters():
                 param.requires_grad = False
         elif self.optmi_args.finetune == "all":
             pass
+        elif self.optmi_args.finetune == "lora":
+            peft_config = LoraConfig(
+                target_modules=["k", "q", ],
+                inference_mode=False,
+                r=4,
+                lora_alpha=8,
+                lora_dropout=0.1,
+            )
+            self.model.transformer = get_peft_model(self.model.transformer, peft_config)
+            self.model.transformer.print_trainable_parameters()
         else:
             raise ValueError(f"finetune={self.optmi_args.finetune} not supported")
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             [p for p in self.parameters() if p.requires_grad],
             lr=self.lr,
             weight_decay=self.optmi_args.weight_decay,
         )
         return optimizer
+
+

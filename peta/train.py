@@ -9,12 +9,12 @@ from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning import seed_everything
 import warnings
+
 warnings.filterwarnings("ignore")
 
 
 def parse_args():
     parser = ArgumentParser()
-
     parser.add_argument("--dataset", type=str, default="fluorescence", choices=DATASETS)
     parser.add_argument("--split_method", type=str, default=None)
     parser.add_argument("--batch_size", type=int, default=4)
@@ -200,7 +200,6 @@ def main():
             project=args.wandb_project, entity=args.wandb_entity, 
             name=args.wandb_run_name, config=vars(args)
             )] if args.wandb else None,
-        max_epochs=args.max_epochs,
         accumulate_grad_batches=args.accumulate_grad_batches,
         gradient_clip_val=args.gradient_clip_val,
         gradient_clip_algorithm=args.gradient_clip_algorithm,
@@ -212,10 +211,9 @@ def main():
                 monitor=monitor, mode="max", patience=args.patience, verbose=True
             ),
         ],
+        max_epochs=args.max_epochs,
     )
     trainer.fit(model, train_loader, valid_loader)
-    
-    # Load best checkpoint
     model = ProxyModel.load_from_checkpoint(model_checkpoint.best_model_path)
     trainer.test(model, test_loader)
 

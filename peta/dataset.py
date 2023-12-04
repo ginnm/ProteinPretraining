@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from torchmetrics.classification import Accuracy
+from torchmetrics.classification import Accuracy, AUROC
 from torchmetrics.regression import MeanSquaredError
 from torchmetrics.regression import SpearmanCorrCoef
 from dataclasses import dataclass
@@ -88,7 +88,7 @@ DATASET_TO_NUM_LABELS = {
     "meltome": 1,
     "gb1": 1,
     "aav": 1,
-    "deepsol": 2,
+    "deepsol": 1,
     "esol": 1,
     "solmut_blat": 1,
     "solmut_cs": 1,
@@ -128,8 +128,8 @@ DATASET_TO_METRICS = {
         {"mse": MeanSquaredError(), "spearman": SpearmanCorrCoef()},
     ],
     "deepsol": [
-        {"accuracy": Accuracy(task="multiclass", num_classes=2)},
-        {"accuracy": Accuracy(task="multiclass", num_classes=2)},
+        {"accuracy": Accuracy(task="binary"), "auroc" : AUROC(task="binary")},
+        {"accuracy": Accuracy(task="binary"), "auroc" : AUROC(task="binary")},
     ],
     "esol": [
         {"mse": MeanSquaredError()},
@@ -184,7 +184,7 @@ DATSET_TO_MONITOR = {
     "meltome": "valid/spearman",
     "gb1": "valid/spearman",
     "aav": "valid/spearman",
-    "deepsol": "valid/accuracy",
+    "deepsol": "valid/auroc",
     "esol": "valid/mse",
     "solmut_blat": "valid/spearman",
     "solmut_cs": "valid/spearman",
@@ -288,14 +288,14 @@ class MeltomeDataset:
         dataset = load_dataset(
             "json",
             data_files={
-                "train": os.path.join(self.base_dir, split_method, "train.json"),
+                "train": os.path.join(self.base_dir, split_method, "total.json"),
                 "test": os.path.join(self.base_dir, split_method, "test.json"),
                 "valid": os.path.join(self.base_dir, split_method, "valid.json"),
                 },
         )
 
         # min-max normalization
-        dataset = min_max_norm_func(dataset)
+        dataset = z_score_norm_func(dataset)
         return dataset
 
 
@@ -347,7 +347,7 @@ class DeepsolDataset:
         dataset = load_dataset(
             "json",
             data_files={
-                "train": os.path.join(self.base_dir, "train.json"),
+                "train": os.path.join(self.base_dir, "total.json"),
                 "test": os.path.join(self.base_dir, "test.json"),
                 "valid": os.path.join(self.base_dir, "val.json"),
                 },
