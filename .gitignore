@@ -163,3 +163,4 @@ ft_datasets/*/
 checkpoints/*/
 lightning_logs/
 legacy/
+wandb/
