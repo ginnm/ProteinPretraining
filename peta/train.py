@@ -21,6 +21,7 @@ def parse_args():
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--tokenizer", type=str, default=None)
     parser.add_argument("--model", type=str, default="AI4Protein/deep_base")
+    parser.add_argument("--model_type", type=str, default="roformer")
     parser.add_argument("--pooling_head", type=str, default="mean")
     parser.add_argument("--patience", type=int, default=3)
     parser.add_argument("--lr", type=float, default=1e-4)
@@ -163,6 +164,7 @@ def main():
 
     model = ProxyModel(
         model_path=args.model,
+        model_type=args.model_type,
         pooling_head=args.pooling_head,
         is_ppi=True if "ppi" in args.dataset else False,
         num_labels=DATASET_TO_NUM_LABELS[args.dataset],

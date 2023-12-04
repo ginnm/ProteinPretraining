@@ -5,7 +5,7 @@ from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 from transformers.activations import ACT2FN
 from transformers.modeling_outputs import SequenceClassifierOutput
 from typing import Optional, Tuple, Union
-from transformers import T5EncoderModel, T5PreTrainedModel
+from transformers import DebertaModel, DebertaPreTrainedModel
 import torch
 import torch.utils.checkpoint
 import torch.nn.functional as F
@@ -186,7 +186,7 @@ class Attention1dPoolingHead(nn.Module):
         return x
 
 
-class T5ClassificationHead(nn.Module):
+class DebertClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
     def __init__(self, config):
@@ -206,14 +206,14 @@ class T5ClassificationHead(nn.Module):
         x = self.out_proj(x)
         return x
     
-class AnkhForSequenceClassification(T5PreTrainedModel):
+class DebertForSequenceClassification(DebertaPreTrainedModel):
     def __init__(self, config, pooling_head="mean", num_labels=1, is_ppi=False):
         super().__init__(config=config)
         self.config = config
         self.num_labels = num_labels
         self.pooling_head = pooling_head
         self.is_ppi = is_ppi
-        self.transformer = T5EncoderModel(config)
+        self.deberta = DebertaModel(config)
         if pooling_head == "mean":
             if is_ppi:
                 self.pooling = MeanPooling()
@@ -229,7 +229,7 @@ class AnkhForSequenceClassification(T5PreTrainedModel):
             else:
                 self.classifier = Attention1dPoolingHead(config)
         elif pooling_head == "cls":
-            self.classifier = T5ClassificationHead(config)
+            self.classifier = DebertClassificationHead(config)
         else:
             raise NotImplementedError(f"pooling head {pooling_head} not implemented")
 
@@ -238,7 +238,7 @@ class AnkhForSequenceClassification(T5PreTrainedModel):
         input_ids: Optional[torch.LongTensor] = None,
         attention_mask: Optional[torch.FloatTensor] = None,
         token_type_ids: Optional[torch.LongTensor] = None,
-        head_mask: Optional[torch.FloatTensor] = None,
+
         inputs_embeds: Optional[torch.FloatTensor] = None,
         labels: Optional[torch.LongTensor] = None,
         output_attentions: Optional[bool] = None,
@@ -255,11 +255,10 @@ class AnkhForSequenceClassification(T5PreTrainedModel):
             return_dict if return_dict is not None else self.config.use_return_dict
         )
 
-        outputs = self.transformer(
+        outputs = self.deberta(
             input_ids,
             attention_mask=attention_mask,
-            # token_type_ids=token_type_ids,
-            head_mask=head_mask,
+            token_type_ids=token_type_ids,
             inputs_embeds=inputs_embeds,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
@@ -303,7 +302,7 @@ class AnkhForSequenceClassification(T5PreTrainedModel):
             elif self.config.problem_type == "single_label_classification":
                 if self.num_labels == 1:
                     loss_fct = BCEWithLogitsLoss()
-                    loss = loss_fct(logits.reshape(-1, ), labels.to(logits.dtype))
+                    loss = loss_fct(logits.squeeze(), labels.float())
                     logits = logits.squeeze()
                 else:
                     loss_fct = CrossEntropyLoss()
@@ -311,7 +310,7 @@ class AnkhForSequenceClassification(T5PreTrainedModel):
             elif self.config.problem_type == "multi_label_classification":
                 loss_fct = BCEWithLogitsLoss()
                 # RuntimeError: result type Float can't be cast to the desired output type Long
-                loss = loss_fct(logits, labels.to(logits.dtype))
+                loss = loss_fct(logits, labels.float())
         if not return_dict:
             output = (logits,) + outputs[1:]
             return ((loss,) + output) if loss is not None else output
@@ -325,8 +324,8 @@ class AnkhForSequenceClassification(T5PreTrainedModel):
 
 
 if __name__ == "__main__":
-    model = AnkhForSequenceClassification.from_pretrained("ElnaggarLab/ankh-base", pooling_head="attention1d", num_labels=2, is_ppi=False)
-    tokenizer = AutoTokenizer.from_pretrained("ElnaggarLab/ankh-base")
+    model = DebertForSequenceClassification.from_pretrained("AI4Protein/meer_base", pooling_head="attention1d", num_labels=1, is_ppi=False)
+    tokenizer = AutoTokenizer.from_pretrained("AI4Protein/meer_base")
     sequences = [
         "MSKLHJSKLGJSGKLSJKHKLSHJ",
         "JKSLHGKSJGHSGJ"
