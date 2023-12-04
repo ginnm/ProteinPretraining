@@ -164,3 +164,7 @@ checkpoints/*/
 lightning_logs/
 legacy/
 wandb/
+
+examples/submit.sh 
+examples/infer_tm.sh
+examples/infer_deepsol.sh
