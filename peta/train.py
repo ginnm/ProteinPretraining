@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument("--wandb_project", type=str, default="debug")
     parser.add_argument("--wandb_entity", type=str, default="matwings")
     parser.add_argument("--wandb_run_name", type=str, default=None)
-    parser.add_argument("--max_length", type=int, default=1024)
+    parser.add_argument("--max_length", type=int, default=2048)
     parser.add_argument("--finetune", type=str, default="all", choices=["all", "head", "lora"])
 
     # Trainer
