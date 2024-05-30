@@ -1,4 +1,5 @@
 from peta.custom_roformer_model import RoFormerForSequenceClassification
+from peta.custom_esm_model import EsmForSequenceClassification
 import pytorch_lightning as pl
 import torch
 
@@ -16,9 +17,15 @@ class ProxyModel(pl.LightningModule):
         tokenizer=None,
     ):
         super().__init__()
-        self.model = RoFormerForSequenceClassification.from_pretrained(
-            model_path, pooling_head=pooling_head, num_labels=num_labels, is_ppi=is_ppi
-        )
+        if "esm2" in model_path:
+            self.model = EsmForSequenceClassification.from_pretrained(
+                model_path, pooling_head=pooling_head, num_labels=num_labels, is_ppi=is_ppi
+            )
+        elif "AI4Protein" in model_path:
+            self.model = RoFormerForSequenceClassification.from_pretrained(
+                model_path, pooling_head=pooling_head, num_labels=num_labels, is_ppi=is_ppi
+            )
+        self.model_path = model_path
         self.model.config.problem_type = problem_type
         self.model.config.num_labels = num_labels
         self.optmi_args = optim_args
@@ -84,8 +91,12 @@ class ProxyModel(pl.LightningModule):
 
     def configure_optimizers(self):
         if self.optmi_args.finetune == "head":
-            for param in self.model.roformer.parameters():
-                param.requires_grad = False
+            if "esm2" in self.model_path:
+                for param in self.model.esm.parameters():
+                    param.requires_grad = False
+            elif "AI4Protein" in self.model_path:
+                for param in self.model.roformer.parameters():
+                    param.requires_grad = False
         elif self.optmi_args.finetune == "all":
             pass
         else:
