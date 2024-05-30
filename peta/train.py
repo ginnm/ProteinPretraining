@@ -209,7 +209,7 @@ def main():
         callbacks=[
             model_checkpoint,
             EarlyStopping(
-                monitor=monitor, mode="max", patience=args.patience, verbose=True
+                monitor=monitor, mode=mode, patience=args.patience, verbose=True
             ),
         ],
     )

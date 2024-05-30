@@ -30,15 +30,14 @@ from transformers.modeling_outputs import (
     SequenceClassifierOutput,
     TokenClassifierOutput,
 )
+from transformers import EsmPreTrainedModel
 from transformers.modeling_utils import PreTrainedModel, find_pruneable_heads_and_indices, prune_linear_layer
 from transformers.utils import logging
-from peta.configuration_esm import EsmConfig
 
 
 logger = logging.get_logger(__name__)
 
 _CHECKPOINT_FOR_DOC = "facebook/esm2_t6_8M_UR50D"
-_CONFIG_FOR_DOC = "EsmConfig"
 
 
 def rotate_half(x):
@@ -840,35 +839,6 @@ class EsmPooler(nn.Module):
         return pooled_output
 
 
-class EsmPreTrainedModel(PreTrainedModel):
-    """
-    An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
-    models.
-    """
-
-    config_class = EsmConfig
-    base_model_prefix = "esm"
-    supports_gradient_checkpointing = True
-    _no_split_modules = ["EsmLayer", "EsmFoldTriangularSelfAttentionBlock", "EsmEmbeddings"]
-
-    # Copied from transformers.models.bert.modeling_bert.BertPreTrainedModel._init_weights
-    def _init_weights(self, module):
-        """Initialize the weights"""
-        if isinstance(module, nn.Linear):
-            # Slightly different from the TF version which uses truncated_normal for initialization
-            # cf https://github.com/pytorch/pytorch/pull/5617
-            module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
-            if module.bias is not None:
-                module.bias.data.zero_()
-        elif isinstance(module, nn.Embedding):
-            module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
-            if module.padding_idx is not None:
-                module.weight.data[module.padding_idx].zero_()
-        elif isinstance(module, nn.LayerNorm):
-            module.bias.data.zero_()
-            module.weight.data.fill_(1.0)
-
-
 ESM_START_DOCSTRING = r"""
 
     This model inherits from [`PreTrainedModel`]. Check the superclass documentation for the generic methods the
@@ -978,7 +948,6 @@ class EsmModel(EsmPreTrainedModel):
     @add_code_sample_docstrings(
         checkpoint=_CHECKPOINT_FOR_DOC,
         output_type=BaseModelOutputWithPoolingAndCrossAttentions,
-        config_class=_CONFIG_FOR_DOC,
     )
     def forward(
         self,
@@ -1141,7 +1110,6 @@ class EsmForMaskedLM(EsmPreTrainedModel):
     @add_code_sample_docstrings(
         checkpoint=_CHECKPOINT_FOR_DOC,
         output_type=MaskedLMOutput,
-        config_class=_CONFIG_FOR_DOC,
         mask="<mask>",
     )
     def forward(
@@ -1234,11 +1202,11 @@ class EsmLMHead(nn.Module):
     ESM_START_DOCSTRING,
 )
 class EsmForSequenceClassification(EsmPreTrainedModel):
-    def __init__(self, config, pooling_head="mean", num_labels=1, is_ppi=False):
+    def __init__(self, config, pooling_head, is_ppi):
         super().__init__(config)
-        self.num_labels = num_labels
         self.pooling_head = pooling_head
         self.is_ppi = is_ppi
+        self.num_labels = config.num_labels
         self.config = config
 
         self.esm = EsmModel(config, add_pooling_layer=False)
@@ -1266,7 +1234,6 @@ class EsmForSequenceClassification(EsmPreTrainedModel):
     @add_code_sample_docstrings(
         checkpoint=_CHECKPOINT_FOR_DOC,
         output_type=SequenceClassifierOutput,
-        config_class=_CONFIG_FOR_DOC,
     )
     def forward(
         self,
@@ -1337,7 +1304,7 @@ class EsmForSequenceClassification(EsmPreTrainedModel):
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             elif self.config.problem_type == "multi_label_classification":
                 loss_fct = BCEWithLogitsLoss()
-                loss = loss_fct(logits, labels)
+                loss = loss_fct(logits, labels.float())
 
         if not return_dict:
             output = (logits,) + outputs[2:]
@@ -1373,7 +1340,6 @@ class EsmForTokenClassification(EsmPreTrainedModel):
     @add_code_sample_docstrings(
         checkpoint=_CHECKPOINT_FOR_DOC,
         output_type=TokenClassifierOutput,
-        config_class=_CONFIG_FOR_DOC,
     )
     def forward(
         self,

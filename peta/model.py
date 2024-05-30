@@ -19,11 +19,11 @@ class ProxyModel(pl.LightningModule):
         super().__init__()
         if "esm2" in model_path:
             self.model = EsmForSequenceClassification.from_pretrained(
-                model_path, pooling_head=pooling_head, num_labels=num_labels, is_ppi=is_ppi
+                pretrained_model_name_or_path=model_path, pooling_head=pooling_head, num_labels=num_labels, is_ppi=is_ppi
             )
         elif "AI4Protein" in model_path:
             self.model = RoFormerForSequenceClassification.from_pretrained(
-                model_path, pooling_head=pooling_head, num_labels=num_labels, is_ppi=is_ppi
+                pretrained_model_name_or_path=model_path, pooling_head=pooling_head, num_labels=num_labels, is_ppi=is_ppi
             )
         self.model_path = model_path
         self.model.config.problem_type = problem_type
