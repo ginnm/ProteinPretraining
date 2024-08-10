@@ -94,9 +94,8 @@ print(hidden_state.shape)
 
 ### Evaluating pre-trianed models on PETA benchmark
 
-Download dataset
+Download dataset at https://drive.google.com/file/d/1o1yIE18WPOVJ8gBL5xcZEldtLSazRVYb/view?usp=sharing
 ```
-wget https://lianglab.sjtu.edu.cn/files/ESWA-2023/benchmark_datasets.zip
 unzip benchmark_datasets.zip
 ls ft_datasets
 ```
@@ -206,12 +205,14 @@ A lot of code is modified from [🤗 transformers](https://github.com/huggingfac
 
 If you find this repository useful, please consider citing this paper:
 ```
-@misc{tan2023peta,
-      title={PETA: Evaluating the Impact of Protein Transfer Learning with Sub-word Tokenization on Downstream Applications}, 
-      author={Yang Tan and Mingchen Li and Pan Tan and Ziyi Zhou and Huiqun Yu and Guisheng Fan and Liang Hong},
-      year={2023},
-      eprint={2310.17415},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
+@article{tan2024peta,
+  title={PETA: evaluating the impact of protein transfer learning with sub-word tokenization on downstream applications},
+  author={Tan, Yang and Li, Mingchen and Zhou, Ziyi and Tan, Pan and Yu, Huiqun and Fan, Guisheng and Hong, Liang},
+  journal={Journal of Cheminformatics},
+  volume={16},
+  number={1},
+  pages={92},
+  year={2024},
+  publisher={Springer}
 }
 ```
