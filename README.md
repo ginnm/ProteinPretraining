@@ -10,7 +10,7 @@
 
 Updated on 2023.10.30
 
-## Get started
+## Get started (Venus-PETA)
 
 ## Install pytorch
 See in https://pytorch.org/. (Our version is Pytorch 2.1.0 & CUDA 11.8)
